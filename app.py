@@ -57,13 +57,7 @@ def form():
         # Insert data into PostgreSQL database
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute(
-            """
-            INSERT INTO feedback (username, name, email, rating, category, product, comments) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """,
-            (session['username'], name, email, rating, category, product, comments)
-        )
+        cur.execute("INSERT INTO feedback (username, name, email, rating, category, product, comments) VALUES (%s, %s, %s, %s, %s, %s, %s) ", (session['username'], name, email, rating, category, product, comments))
         conn.commit()
         cur.close()
         conn.close()

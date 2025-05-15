@@ -1,3 +1,15 @@
+CREATE TABLE IF NOT EXISTS feedback (
+    id SERIAL PRIMARY KEY,
+    username TEXT,
+    name TEXT,
+    email TEXT,
+    rating INTEGER,
+    category TEXT,
+    product TEXT,
+    comments TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Table for login test results
 CREATE TABLE IF NOT EXISTS test_results (
     id SERIAL PRIMARY KEY,
