@@ -3,7 +3,7 @@ import json
 import psycopg2
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
 app.secret_key = 'supersecretkey'  # Make sure to use a secure key in production
 
 # --- Load Users from JSON ---
