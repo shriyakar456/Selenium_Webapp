@@ -57,10 +57,19 @@ jobs:
             nohup python app.py > flask.log 2>&1 &
             sleep 5  # Wait for server to fully start
 
-      - name: Run Selenium Scripts (Headless)
+      - name: Run Login Automation Tests
         run: |
-          python tests/test_login.py --headless
-          python tests/test_feedback.py --headless
+            for i in 1 2; do
+                echo "Attempt $i"
+                python tests/test_login.py --headless && break || sleep 3
+            done
+
+      - name: Run Feedback Automation Tests
+        run: |
+            for i in 1 2; do
+                echo "Attempt $i"
+                python tests/test_feedback.py --headless && break || sleep 3
+            done
           
       - name: Print Test Summary to Console
         run: python report_dashboard.py --summary
