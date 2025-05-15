@@ -47,15 +47,26 @@ jobs:
         run: |
             nohup python report_dashboard.py > flask.log 2>&1 &
             sleep 5
+            
+      - name: Initialize database schema
+        run: |
+            PGPASSWORD=ruchi123 psql -h localhost -U postgres -p 5434 -d webapp_db -f init_db.sql
 
       - name: Run Selenium Scripts (Headless)
         run: |
           python tests/test_login.py --headless
           python tests/test_feedback.py --headless
+          
+      - name: Print Test Summary to Console
+        run: python report_dashboard.py --summary
 
-      - name: Upload Report
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Export DB results to CSV
+        run: python export_results.py
+
+      - name: Upload CSV Reports
+        uses: actions/upload-artifact@v3
         with:
-          name: html-report
-          path: report.html
+            name: selenium-test-reports
+            path: |
+                login_report.csv
+                form_report.csv

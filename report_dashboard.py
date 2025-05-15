@@ -3,6 +3,7 @@ import psycopg2
 import csv
 from flask import make_response, request
 import io
+import sys
 
 app = Flask(__name__)
 
@@ -125,6 +126,33 @@ def download_report(report_type):
     response.headers["Content-Disposition"] = f"attachment; filename={report_type}_test_report.csv"
     response.headers["Content-Type"] = "text/csv"
     return response
+    
+def print_summary_to_console():
+    login_results = get_results()
+    form_results = get_latest_form_results()
+
+    def summarize(results):
+        total = len(results)
+        passed = sum(1 for row in results if row[3] == "PASS")
+        failed = total - passed
+        return total, passed, failed
+
+    print("\n🧪 Login Test Summary")
+    if login_results:
+        total, passed, failed = summarize(login_results)
+        print(f"✅ Total: {total} | ✅ Passed: {passed} | ❌ Failed: {failed}")
+    else:
+        print("No login results found.")
+
+    print("\n🧪 Feedback Form Test Summary")
+    if form_results:
+        total, passed, failed = summarize(form_results)
+        print(f"✅ Total: {total} | ✅ Passed: {passed} | ❌ Failed: {failed}")
+    else:
+        print("No form results found.")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    if "--summary" in sys.argv:
+        print_summary_to_console()
+    else:
+        app.run(host="0.0.0.0", port=5000, debug=False)
