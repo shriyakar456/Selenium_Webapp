@@ -54,7 +54,7 @@ jobs:
             
       - name: Start Flask App
         run: |
-            nohup python app.py > flask.log 2>&1 &
+            nohup python app.py &
             sleep 5  # Wait for server to fully start
 
       - name: Run Login Automation Tests
@@ -73,6 +73,9 @@ jobs:
           
       - name: Print Test Summary to Console
         run: python report_dashboard.py --summary
+        
+      - name: Show Summary
+        run: python summary_generator.py
 
       - name: Export DB results to CSV
         run: python export_results.py
