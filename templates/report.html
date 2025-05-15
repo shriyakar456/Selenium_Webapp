@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Report Dashboard</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; font-family: Arial; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .PASS { color: green; font-weight: bold; }
+        .FAIL { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+	<a href="/download/login" target="_blank">⬇ Download Login Report (CSV)</a><br>
+	<a href="/download/form" target="_blank">⬇ Download Feedback Report (CSV)</a>
+	<form method="get">
+		<label>Login Batch:</label>
+		<select name="login_batch" onchange="this.form.submit()">
+			{% for batch in login_batches %}
+			<option value="{{ batch }}" {% if batch == selected_login_batch %}selected{% endif %}>{{ batch }}</option>
+			{% endfor %}
+		</select>
+
+		<label>Form Batch:</label>
+		<select name="form_batch" onchange="this.form.submit()">
+			{% for batch in form_batches %}
+			<option value="{{ batch }}" {% if batch == selected_form_batch %}selected{% endif %}>{{ batch }}</option>
+			{% endfor %}
+		</select>
+	</form>
+    <h2>Login Test Results</h2>
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>Expected</th>
+            <th>Actual</th>
+            <th>Result</th>
+            <th>Timestamp</th>
+        </tr>
+        {% for row in login_results %}
+        <tr>
+            <td>{{ row[1] }}</td>  <!-- username -->
+			<td>{{ row[2] }}</td>  <!-- expected -->
+			<td>{{ row[3] }}</td>  <!-- actual -->
+			<td><strong style="color:{{ 'green' if row[4] == 'PASS' else 'red' }}">{{ row[4] }}</strong></td>
+			<td>{{ row[5] }}</td>  <!-- timestamp -->
+        </tr>
+        {% endfor %}
+    </table>
+	<h2>Feedback Form Automation Results (Latest Batch)</h2>
+	<table>
+		<tr>
+			<th>Username</th>
+			<th>Name</th>
+			<th>Email</th>
+			<th>Rating</th>
+			<th>Category</th>
+			<th>Product</th>
+			<th>Comments</th>
+			<th>Result</th>
+			<th>Timestamp</th>
+		</tr>
+		{% for row in form_results %}
+		<tr>
+			<td>{{ row[0] }}</td>
+			<td>{{ row[1] }}</td>
+			<td>{{ row[2] }}</td>
+			<td>{{ row[3] }}</td>
+			<td>{{ row[4] }}</td>
+			<td>{{ row[5] }}</td>
+			<td>{{ row[6] }}</td>
+			<td class="{{ row[7] }}">{{ row[7] }}</td>
+			<td>{{ row[8] }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+</body>
+</html>

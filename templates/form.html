@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Feedback Form</title>
+</head>
+<body>
+    <h2>Feedback Form</h2>
+    <form method="POST">
+        <input type="text" name="name" placeholder="Your Name" required><br>
+        <input type="email" name="email" placeholder="Your Email" required><br>
+        <label>Rating (1–5):</label>
+        <input type="number" name="rating" min="1" max="5" required><br>
+        
+        <!-- New Fields: Category and Product -->
+        <label>Feedback Category:</label>
+        <select name="category" required>
+            <option value="">--Select Category--</option>
+            <option value="Bug">Bug</option>
+            <option value="Suggestion">Suggestion</option>
+            <option value="Compliment">Compliment</option>
+            <option value="Other">Other</option>
+        </select>
+        <br>
+        
+        <label>Product / Feature:</label>
+        <select name="product" required>
+            <option value="">--Select Product--</option>
+            <option value="Website">Website</option>
+            <option value="Mobile App">Mobile App</option>
+            <option value="Backend Service">Backend Service</option>
+            <option value="Other">Other</option>
+        </select>
+        <br>
+        
+        <textarea name="comments" placeholder="Your comments here..." required></textarea><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

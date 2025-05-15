@@ -1,0 +1,11 @@
+name,email,rating,category,product,comments
+Alice,alice@example.com,4,Bug,Website,Found a bug on footer
+Bob,bob@example.com,5,Suggestion,Mobile App,Please add dark mode
+Charlie,charlie@example.com,3,Compliment,Backend Service,Fast and stable API
+Diana,diana@example.com,2,Other,Other,Testing different options
+Eli,eli@example.com,1,Bug,Website,Page crashed on submit
+Faye,faye@example.com,5,Compliment,Mobile App,Best experience so far
+Gaurav,gaurav@example.com,3,Suggestion,Backend Service,More documentation needed
+Hana,hana@example.com,4,Other,Website,Page loads slowly on Firefox
+Ivan,ivan@example.com,2,Bug,Other,Dropdown not responsive
+Jaya,jaya@example.com,5,Compliment,Website,Sleek UI, loved it!
