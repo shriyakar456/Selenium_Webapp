@@ -12,13 +12,13 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ruchi123
           POSTGRES_DB: webapp_db
         ports:
-          - 5432:5432
+          - 5434:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
