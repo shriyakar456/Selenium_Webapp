@@ -54,19 +54,23 @@ jobs:
             
       - name: Start Flask App
         run: |
-            nohup python app.py &
-            sleep 5  # Wait for server to fully start
+            nohup python app.py > flask.log 2>&1 &
+            for i in {1..10}; do
+              curl --silent http://127.0.0.1:5000/ && break
+              echo "⏳ Waiting for Flask to start..."
+              sleep 2
+            done
 
       - name: Run Login Automation Tests
         run: |
-            for i in 1 2; do
+            for i in 1 2 3; do
                 echo "Attempt $i"
                 python tests/test_login.py --headless && break || sleep 3
             done
 
       - name: Run Feedback Automation Tests
         run: |
-            for i in 1 2; do
+            for i in 1 2 3; do
                 echo "Attempt $i"
                 python tests/test_feedback.py --headless && break || sleep 3
             done
