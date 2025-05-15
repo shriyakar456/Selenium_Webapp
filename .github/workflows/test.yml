@@ -70,14 +70,10 @@ jobs:
                 echo "Attempt $i"
                 python tests/test_feedback.py --headless && break || sleep 3
             done
-            
-      - name: Run Flask server
+      
+      - name: Simulate user behaviors
         run: |
-            nohup python report_dashboard.py > flask.log 2>&1 &
-            sleep 5
-          
-      - name: Print Test Summary to Console
-        run: python report_dashboard.py --summary
+            python simulate_behaviours.py --headless
         
       - name: Show Summary
         run: python summary_generator.py
@@ -92,3 +88,9 @@ jobs:
             path: |
                 login_report.csv
                 form_report.csv
+                
+      - name: Upload screenshots/logs
+        uses: actions/upload-artifact@v4
+        with:
+            name: output
+            path: ./logs/

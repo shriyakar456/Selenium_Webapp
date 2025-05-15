@@ -37,3 +37,13 @@ CREATE TABLE IF NOT EXISTS form_test_results (
     timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     batch_id TEXT
 );
+
+CREATE TABLE IF NOT EXISTS behaviour_test_results (
+    id SERIAL PRIMARY KEY,
+    username TEXT,
+    behavior TEXT,
+    status TEXT,
+    details TEXT,
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    batch_id TEXT
+);

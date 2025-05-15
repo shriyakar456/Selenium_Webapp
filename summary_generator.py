@@ -18,3 +18,7 @@ try:
     print_summary("form_test_results", "Feedback Form Test")
 except:
     print("🧪 Feedback Form Test Summary\nNo form results found.")
+try:
+    print_summary("behaviour_test_results", "User Behaviour Simulation")
+except Exception:
+    print("🧪 User Behaviour Simulation Summary\nNo simulation results found.")
