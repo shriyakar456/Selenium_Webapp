@@ -127,4 +127,4 @@ def download_report(report_type):
     return response
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
