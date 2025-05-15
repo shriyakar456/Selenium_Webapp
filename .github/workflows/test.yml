@@ -1,0 +1,54 @@
+name: Selenium Test CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  selenium-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ruchi123
+          POSTGRES_DB: webapp_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
+          sudo ln -s /usr/bin/chromium-browser /usr/bin/google-chrome
+
+      - name: Run Selenium Scripts (Headless)
+        run: |
+          python tests/test_login.py --headless
+          python tests/test_feedback.py --headless
+
+      - name: Upload Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-report
+          path: report.html

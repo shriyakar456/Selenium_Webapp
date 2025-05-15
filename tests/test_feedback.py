@@ -5,6 +5,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from datetime import datetime
+import sys
+from selenium.webdriver.chrome.options import Options
 
 def log_form_result(username, name, email, rating, category, product, comments, expected, actual, result):
     conn = psycopg2.connect(
@@ -25,7 +27,14 @@ with open("form_test_data.csv", newline='') as csvfile:
     reader = csv.DictReader(csvfile)
     test_data = list(reader)
 
-driver = webdriver.Chrome()
+options = Options()
+if '--headless' in sys.argv:
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+
+driver = webdriver.Chrome(options=options)
 driver.get("http://127.0.0.1:5000/")
 time.sleep(1)
 

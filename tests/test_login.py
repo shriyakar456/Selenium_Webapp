@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
+import sys
 
 batch_id = datetime.now().strftime("%Y%m%d%H%M%S")
 
@@ -42,6 +43,12 @@ options.add_experimental_option("prefs", {
     "credentials_enable_service": False,
     "profile.password_manager_enabled": False
 })
+
+if '--headless' in sys.argv:
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
 
 driver = webdriver.Chrome(options=options)
 
