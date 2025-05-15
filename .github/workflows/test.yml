@@ -73,7 +73,7 @@ jobs:
       
       - name: Simulate user behaviors
         run: |
-            python simulate_behaviours.py --headless
+            python test/simulate_behaviours.py --headless
         
       - name: Show Summary
         run: python summary_generator.py
