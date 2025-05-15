@@ -39,7 +39,9 @@ jobs:
           pip install -r requirements.txt
           sudo apt-get update
           sudo apt-get install -y chromium-browser
-          sudo ln -s /usr/bin/chromium-browser /usr/bin/google-chrome
+          if ! command -v google-chrome &> /dev/null; then
+  		sudo ln -s /usr/bin/chromium-browser /usr/bin/google-chrome
+	  fi
 
       - name: Run Selenium Scripts (Headless)
         run: |
