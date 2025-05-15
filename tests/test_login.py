@@ -4,6 +4,8 @@ import psycopg2
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 import sys
 
@@ -28,7 +30,8 @@ def log_result(username, expected, actual, result):
         password="ruchi123"
     )
     cur = conn.cursor()
-    cur.execute("INSERT INTO test_results (username, expected, actual, result, batch_id) VALUES (%s, %s, %s, %s, %s) ", (username, expected, actual, result, batch_id))
+    cur.execute("INSERT INTO test_results (username, expected, actual, result, batch_id) VALUES (%s, %s, %s, %s, %s)", 
+                (username, expected, actual, result, batch_id))
     conn.commit()
     cur.close()
     conn.close()
@@ -57,28 +60,37 @@ for user in test_users:
     password = user['password']
     expected = "Success" if any(u['username'] == username and u['password'] == password for u in all_users) else "Failure"
 
-    driver.get("http://127.0.0.1:5000/")  # Force reload
-    time.sleep(1)
+    try:
+        driver.get("http://127.0.0.1:5000/")
+        
+        # Use WebDriverWait instead of time.sleep
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username")))
 
-    driver.find_element(By.NAME, "username").clear()
-    driver.find_element(By.NAME, "username").send_keys(username)
-    driver.find_element(By.NAME, "password").clear()
-    driver.find_element(By.NAME, "password").send_keys(password)
-    driver.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
-    time.sleep(1)
+        driver.find_element(By.NAME, "username").clear()
+        driver.find_element(By.NAME, "username").send_keys(username)
+        driver.find_element(By.NAME, "password").clear()
+        driver.find_element(By.NAME, "password").send_keys(password)
+        driver.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
 
-    if "/form" in driver.current_url:
-        actual = "Success"
-        result = "PASS" if expected == "Success" else "FAIL"
-    elif "Invalid username or password" in driver.page_source:
-        actual = "Failure"
-        result = "PASS" if expected == "Failure" else "FAIL"
-    else:
-        actual = "Unknown"
-        result = "FAIL"
+        # Wait for possible page redirect or error message
+        time.sleep(1)
 
-    log_result(username, expected, actual, result)
-    print(f"{username}: {result} (Expected: {expected}, Actual: {actual})")
+        if "/form" in driver.current_url:
+            actual = "Success"
+            result = "PASS" if expected == "Success" else "FAIL"
+        elif "Invalid username or password" in driver.page_source:
+            actual = "Failure"
+            result = "PASS" if expected == "Failure" else "FAIL"
+        else:
+            actual = "Unknown"
+            result = "FAIL"
+
+        log_result(username, expected, actual, result)
+        print(f"{username}: {result} (Expected: {expected}, Actual: {actual})")
+
+    except Exception as e:
+        print(f"❌ Error in test for {username}: {e}")
+        log_result(username, expected, "Unknown", "FAIL")
 
 driver.quit()
 print("✅ All login tests complete. Test results saved to database.")
