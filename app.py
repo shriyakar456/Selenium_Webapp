@@ -65,6 +65,12 @@ def form():
         return f"<h2>Thank you, {name}! Your feedback has been submitted.</h2>"
 
     return render_template('form.html')
+    
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=False)

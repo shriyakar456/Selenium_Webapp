@@ -22,20 +22,26 @@ test_users = all_users + [
 ]
 
 def log_result(username, expected, actual, result):
-    conn = psycopg2.connect(
-        host="localhost",
-        port=5434,
-        database="webapp_db",
-        user="postgres",
-        password="ruchi123"
-    )
-    cur = conn.cursor()
-    cur.execute("INSERT INTO test_results (username, expected, actual, result, batch_id) VALUES (%s, %s, %s, %s, %s)", 
-                (username, expected, actual, result, batch_id))
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            port=5434,
+            database="webapp_db",
+            user="postgres",
+            password="ruchi123"
+        )
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO test_results (username, expected, actual, result, batch_id) VALUES (%s, %s, %s, %s, %s)",
+            (username, expected, actual, result, batch_id)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print(f"❌ Error inserting result for {username}: {e}")
 
+# --- Setup Chrome options ---
 options = Options()
 options.add_argument("--disable-blink-features=AutomationControlled")
 options.add_argument("--disable-features=PasswordCheck")
@@ -46,7 +52,6 @@ options.add_experimental_option("prefs", {
     "credentials_enable_service": False,
     "profile.password_manager_enabled": False
 })
-
 if '--headless' in sys.argv:
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
@@ -61,9 +66,12 @@ for user in test_users:
     expected = "Success" if any(u['username'] == username and u['password'] == password for u in all_users) else "Failure"
 
     try:
+        # Reset session before each login attempt
+        driver.get("http://127.0.0.1:5000/logout")
+        time.sleep(0.5)
         driver.get("http://127.0.0.1:5000/")
         
-        # Use WebDriverWait instead of time.sleep
+        # Wait until login fields are ready
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username")))
 
         driver.find_element(By.NAME, "username").clear()
@@ -71,8 +79,6 @@ for user in test_users:
         driver.find_element(By.NAME, "password").clear()
         driver.find_element(By.NAME, "password").send_keys(password)
         driver.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
-
-        # Wait for possible page redirect or error message
         time.sleep(1)
 
         if "/form" in driver.current_url:
@@ -85,12 +91,13 @@ for user in test_users:
             actual = "Unknown"
             result = "FAIL"
 
-        log_result(username, expected, actual, result)
-        print(f"{username}: {result} (Expected: {expected}, Actual: {actual})")
-
     except Exception as e:
+        actual = "Unknown"
+        result = "FAIL"
         print(f"❌ Error in test for {username}: {e}")
-        log_result(username, expected, "Unknown", "FAIL")
+
+    log_result(username, expected, actual, result)
+    print(f"{username}: {result} (Expected: {expected}, Actual: {actual})")
 
 driver.quit()
 print("✅ All login tests complete. Test results saved to database.")
