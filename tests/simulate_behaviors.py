@@ -21,7 +21,7 @@ DB_CONFIG = {
 def log_behaviour_result(username, behavior, status, details):
     conn = psycopg2.connect(**DB_CONFIG)
     cur = conn.cursor()
-    cur.execute("INSERT INTO behaviour_test_results (username, behavior, status, details, batch_id) VALUES (%s, %s, %s, %s, %s) ", (username, behavior, status, details, batch_id))
+    cur.execute("INSERT INTO behaviour_test_results (username, behavior, result, details, batch_id) VALUES (%s, %s, %s, %s, %s) ", (username, behavior, status, details, batch_id))
     conn.commit()
     cur.close()
     conn.close()
