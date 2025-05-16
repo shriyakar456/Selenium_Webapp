@@ -30,32 +30,47 @@ with open("form_test_data.csv", newline='') as csvfile:
     reader = csv.DictReader(csvfile)
     test_data = list(reader)
 
-# --- Setup Chrome ---
-options = Options()
-if '--headless' in sys.argv:
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
+# --- Chrome options ---
+def get_chrome_driver():
+    options = Options()
+    if '--headless' in sys.argv:
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--disable-features=PasswordManagerEnabled,AutofillServerCommunication")
+    options.add_argument("--disable-save-password-bubble")
+    options.add_argument("--no-default-browser-check")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-translate")
+    options.add_experimental_option("prefs", {
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled": False,
+        "profile.default_content_setting_values.notifications": 2,
+        "profile.default_content_setting_values.automatic_downloads": 1
+    })
+    return webdriver.Chrome(options=options)
 
-driver = webdriver.Chrome(options=options)
-driver.get("http://127.0.0.1:5000/")
-WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username")))
-
-# --- Login ---
-driver.find_element(By.NAME, "username").send_keys("admin")
-driver.find_element(By.NAME, "password").send_keys("1234")
-driver.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
-WebDriverWait(driver, 10).until(EC.url_contains("/form"))
-
-# --- Submit feedbacks ---
+# --- Test Each Feedback Submission Individually ---
 for entry in test_data:
     success = False
-    for attempt in range(1, 4):  # Retry up to 3 times
+    for attempt in range(1, 4):
         try:
-            print(f"🔁 Attempt {attempt} for {entry['name']}")
+            print(f"\n🔁 Attempt {attempt} for {entry['name']}")
+
+            driver = get_chrome_driver()
+            driver.get("http://127.0.0.1:5000/")
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username")))
+
+            # --- Login each time ---
+            driver.find_element(By.NAME, "username").send_keys("admin")
+            driver.find_element(By.NAME, "password").send_keys("1234")
+            driver.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
+            WebDriverWait(driver, 10).until(EC.url_contains("/form"))
+
+            # --- Fill form ---
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "name")))
-            
             driver.find_element(By.NAME, "name").clear()
             driver.find_element(By.NAME, "email").clear()
             driver.find_element(By.NAME, "rating").clear()
@@ -78,31 +93,23 @@ for entry in test_data:
                 actual = "Failure"
                 result = "FAIL"
 
-            log_form_result(
-                username="admin",
-                name=entry["name"],
-                email=entry["email"],
-                rating=entry["rating"],
-                category=entry["category"],
-                product=entry["product"],
-                comments=entry["comments"],
-                expected="Success",
-                actual=actual,
-                result=result
-            )
+            log_form_result("admin", entry["name"], entry["email"], entry["rating"],
+                            entry["category"], entry["product"], entry["comments"],
+                            expected="Success", actual=actual, result=result)
+
             print(f"{entry['name']}: {result} (Expected: Success, Actual: {actual})")
             success = True
+            driver.quit()
             break
 
         except Exception as e:
             print(f"❌ Error in test for {entry.get('name', '?')}: {e}")
+            driver.quit()
             time.sleep(1)
-            driver.get("http://127.0.0.1:5000/form")
-    
+
     if not success:
-        log_form_result(entry["name"], entry["name"], entry["email"], entry["rating"],
+        log_form_result("admin", entry["name"], entry["email"], entry["rating"],
                         entry["category"], entry["product"], entry["comments"],
                         expected="Success", actual="Failure", result="FAIL")
 
-driver.quit()
 print("✅ All feedback submissions tested and logged.")
