@@ -44,19 +44,18 @@ def log_result(username, expected, actual, result):
 # --- Setup Chrome options ---
 options = Options()
 options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument("--disable-features=PasswordCheck")
+options.add_argument("--disable-features=PasswordManagerEnabled,AutofillServerCommunication")
 options.add_argument("--disable-save-password-bubble")
 options.add_argument("--no-default-browser-check")
 options.add_argument("--disable-extensions")
+options.add_argument("--disable-translate")
+
 options.add_experimental_option("prefs", {
     "credentials_enable_service": False,
-    "profile.password_manager_enabled": False
+    "profile.password_manager_enabled": False,
+    "profile.default_content_setting_values.notifications": 2,  # blocks popups/notifications
+    "profile.default_content_setting_values.automatic_downloads": 1
 })
-if '--headless' in sys.argv:
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
 
 driver = webdriver.Chrome(options=options)
 
@@ -66,20 +65,30 @@ for user in test_users:
     expected = "Success" if any(u['username'] == username and u['password'] == password for u in all_users) else "Failure"
 
     try:
-        # Reset session before each login attempt
+        # Logout before fresh login
         driver.get("http://127.0.0.1:5000/logout")
-        time.sleep(0.5)
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.NAME, "username")))
+
+        # Load login page
         driver.get("http://127.0.0.1:5000/")
-        
-        # Wait until login fields are ready
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username")))
 
-        driver.find_element(By.NAME, "username").clear()
-        driver.find_element(By.NAME, "username").send_keys(username)
-        driver.find_element(By.NAME, "password").clear()
-        driver.find_element(By.NAME, "password").send_keys(password)
+        # Fill login form
+        username_input = driver.find_element(By.NAME, "username")
+        password_input = driver.find_element(By.NAME, "password")
+
+        username_input.clear()
+        username_input.send_keys(username)
+
+        password_input.clear()
+        password_input.send_keys(password)
+
         driver.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
-        time.sleep(1)
+
+        # Wait for either form page or error message
+        WebDriverWait(driver, 5).until(
+            lambda d: "/form" in d.current_url or "Invalid username or password" in d.page_source
+        )
 
         if "/form" in driver.current_url:
             actual = "Success"
