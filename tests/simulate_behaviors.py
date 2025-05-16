@@ -28,7 +28,12 @@ def log_behaviour_result(username, behavior, status, details):
 
 # ---------- Headless Chrome Config ----------
 options = Options()
+options.add_experimental_option("prefs", {
+    "credentials_enable_service": False,
+    "profile.password_manager_enabled": False
+})
 options.add_argument("--disable-blink-features=AutomationControlled")
+options.add_argument("--disable-save-password-bubble")  # suppresses the bubble UI
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 
@@ -62,12 +67,12 @@ except Exception as e:
 # ---------- Simulate Hover Action ----------
 try:
     actions = ActionChains(driver)
-    nav_element = driver.find_element(By.TAG_NAME, "nav")  # Adjust as per actual UI
-    actions.move_to_element(nav_element).perform()
+    category_dropdown = driver.find_element(By.NAME, "category")
+    actions.move_to_element(category_dropdown).perform()
     time.sleep(1)
-    log_behaviour_result("admin", "Hover Navigation", "PASS", "Hover over navbar simulated.")
+    log_behaviour_result("admin", "Hover Category", "PASS", "Hovered over category dropdown.")
 except Exception as e:
-    log_behaviour_result("admin", "Hover Navigation", "FAIL", str(e))
+    log_behaviour_result("admin", "Hover Category", "FAIL", str(e))
 
 # ---------- Simulate Inactivity Timeout ----------
 try:
