@@ -24,6 +24,7 @@ def export_table_to_csv(table_name, filename):
 
 export_table_to_csv("test_results", "login_report.csv")
 export_table_to_csv("form_test_results", "form_report.csv")
+export_table_to_csv("behaviour_test_results","behaviour_report.csv")
 
 cur.close()
 conn.close()

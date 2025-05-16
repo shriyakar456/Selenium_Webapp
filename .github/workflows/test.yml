@@ -88,6 +88,7 @@ jobs:
             path: |
                 login_report.csv
                 form_report.csv
+		behaviour_report.csv
                 
       - name: Upload screenshots/logs
         uses: actions/upload-artifact@v4
